@@ -1,8 +1,6 @@
 package web.core.repositories;
 
 import java.io.File;
-import java.sql.Date;
-
 import org.springframework.web.multipart.MultipartFile;
 
 import web.core.models.entities.Account;
@@ -31,15 +29,15 @@ public interface AccountRepo {
 
 	public Account setBookmarkedRoom(Account account, Room room);
 
-	public Account updateAccountFirstName(Account account,Account updatedaccount);
+	public Account updateAccountFirstName(Account updatedaccount);
 
-	public Account updateAccountLastName(Account account,Account updatedaccount);
+	public Account updateAccountLastName(Account updatedaccount);
 
-	public Account updateAccountCity(Account account,Account updatedaccount);
+	public Account updateAccountCity(Account updatedaccount);
 
-	public Account updateAccountCountry(Account account,Account updatedaccount);
+	public Account updateAccountCountry(Account updatedaccount);
 
-	public Account updateAccountAbount(Account account,Account updatedaccount);
+	public Account updateAccountAbount(Account updatedaccount);
 
 //This part related to Account List
 	public AccountList findAccounts(String check);
@@ -57,6 +55,8 @@ public interface AccountRepo {
 	
 	//Service createRoom handle this two
 	public Room createRoom(Room room);
+
+	public Room getRoom(String name);
 	
 	public Room setRoomCreator(Account account,Room room);
 
@@ -73,7 +73,7 @@ public interface AccountRepo {
 	public Institutions deleteInstitution(Institutions institution,
 			Account account);
 
-	public Institutions searchInstitution(String inisname,Date start,Date end,String typr,String description);
+	public Institutions searchInstitution(Institutions institutions);
 
 	public Institutions addAccountToInstitution(Institutions institution,
 			Account account);

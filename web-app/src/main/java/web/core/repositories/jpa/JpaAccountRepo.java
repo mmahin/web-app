@@ -3,7 +3,6 @@ package web.core.repositories.jpa;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.sql.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -108,6 +107,20 @@ public class JpaAccountRepo implements AccountRepo {
 			return null;
 		} else {
 			return new RoomList(rooms);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Room getRoom(String name) {
+		Query query = em.createQuery("SELECT a FROM Room a "
+				+ "WHERE a.roomname=?1");
+		query.setParameter(1, name);
+		List<Room> rooms = query.getResultList();
+		if (rooms.size() == 0) {
+			return null;
+		} else {
+			return rooms.get(0);
 		}
 	}
 
@@ -233,15 +246,15 @@ public class JpaAccountRepo implements AccountRepo {
 	}
 	
 	@Override
-	public Institutions searchInstitution(String inisname,Date start,Date end,String type,String description) {
+	public Institutions searchInstitution(Institutions check) {
 		Query query = em
-				.createQuery("SELECT a FROM Institutions a WHERE a.name=?1"
-						+"AND a.start=?2"+"AND a.end=?3"+"AND a.type=?4"+"AND a.description=?5");
-		query.setParameter(1, inisname);
-		query.setParameter(2, start);
-		query.setParameter(3, end);
-		query.setParameter(4, type);
-		query.setParameter(5, description);
+				.createQuery("SELECT a FROM Institutions a WHERE a.name=?1 "
+						+"AND a.start=?2 "+"AND a.end=?3 "+"AND a.type=?4 "+"AND a.description=?5");
+		query.setParameter(1, check.getName());
+		query.setParameter(2, check.getStart());
+		query.setParameter(3, check.getEnd());
+		query.setParameter(4, check.getType());
+		query.setParameter(5, check.getDescription());
 		@SuppressWarnings("unchecked")
 		List<Institutions> institutions = query.getResultList();
 		if (institutions.size() == 0) {
@@ -276,7 +289,8 @@ public class JpaAccountRepo implements AccountRepo {
 	@Override
 	public InstitutionList getInstitutions(String username) {
 		
-		Query query = em.createQuery("SELECT ins from Account a inner join a.institutions ins");
+		Query query = em.createQuery("SELECT ins from Account a inner join a.institutions ins WHERE a.username=?1");
+		query.setParameter(1, username);
 		@SuppressWarnings("rawtypes")
 		List institutions = query.getResultList();;
 		if (institutions.size() == 0) {
@@ -301,32 +315,32 @@ public class JpaAccountRepo implements AccountRepo {
 	}
 
 	@Override
-	public Account updateAccountFirstName(Account account,Account updatedaccount) {
-		account.setNamefirst(updatedaccount.getNamefirst());
-		return account;
+	public Account updateAccountFirstName(Account updatedaccount) {
+		updatedaccount.setNamefirst(updatedaccount.getNamefirst());
+		return updatedaccount;
 	}
 
 	@Override
-	public Account updateAccountLastName(Account account,Account updatedaccount) {
-		account.setNamelast(updatedaccount.getNamelast());
-		return account;
+	public Account updateAccountLastName(Account updatedaccount) {
+		updatedaccount.setNamelast(updatedaccount.getNamelast());
+		return updatedaccount;
 	}
 
 	@Override
-	public Account updateAccountCity(Account account,Account updatedaccount) {
-		account.setCity(updatedaccount.getCity());
-		return account;
+	public Account updateAccountCity(Account updatedaccount) {
+		updatedaccount.setCity(updatedaccount.getCity());
+		return updatedaccount;
 	}
 
 	@Override
-	public Account updateAccountCountry(Account account,Account updatedaccount) {
-		account.setCountry(updatedaccount.getCountry());
-		return account;
+	public Account updateAccountCountry(Account updatedaccount) {
+		updatedaccount.setCountry(updatedaccount.getCountry());
+		return updatedaccount;
 	}
 
 	@Override
-	public Account updateAccountAbount(Account account,Account updatedaccount) {
-		account.setAbout(updatedaccount.getAbout());
-		return account;
+	public Account updateAccountAbount(Account updatedaccount) {
+		updatedaccount.setAbout(updatedaccount.getAbout());
+		return updatedaccount;
 	}
 }

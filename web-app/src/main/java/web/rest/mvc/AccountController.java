@@ -1,5 +1,6 @@
 package web.rest.mvc;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -208,7 +209,7 @@ public class AccountController {
 	@RequestMapping(value = "/profile/{username}/updateimage", method = RequestMethod.POST)
 	public @ResponseBody
 	ResponseEntity<AccountResource> updateAccountImage(@PathVariable("username") String username,
-		        @RequestParam("image") final MultipartFile file)throws IOException {
+		        @RequestParam("image") final MultipartFile file)throws Exception {
 		try {
 			Account account = accountService.updateAccountImage(file,username);
 		    AccountResource res = new AccountResourceAsm().toResource(account);
@@ -226,7 +227,7 @@ public class AccountController {
 	public @ResponseBody
 	ResponseEntity<AccountResource> getAccountImage(@PathVariable("username") String username)throws IOException {
 		try {			
-		    Account account = accountService.getAccountImage(username);
+		    File file = accountService.getAccountImage(username);
 			AccountResource res = new AccountResourceAsm().toResource(account);
 			HttpHeaders headers = new HttpHeaders();
 			headers.setLocation(URI.create(res.getImage().toString()));

@@ -1,11 +1,14 @@
 package web.core.services;
 
+import java.io.File;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import web.core.models.entities.Account;
 import web.core.models.entities.Institutions;
 import web.core.models.entities.Room;
 import web.core.services.util.AccountList;
+import web.core.services.util.InstitutionList;
 import web.core.services.util.RoomList;
 
 public interface AccountService {
@@ -30,9 +33,9 @@ public interface AccountService {
 
 	public Account updateAccountInfo(Account account);
 
-	public Account updateAccountImage(MultipartFile file, String username);
+	public Account updateAccountImage(MultipartFile file, String username) throws Exception;
 
-	public Account getAccountImage(String username);
+	public File getAccountImage(String username) throws Exception;
 
 	public Institutions addInstitution(Institutions institution, String username);
 
@@ -43,5 +46,8 @@ public interface AccountService {
 
 
 	public AccountList bookmarkAccount(String username_own, String username_follow);
+	
+	public InstitutionList getInstitutions(String username);
 
+	public InstitutionList searchInstitutions(String check);
 }

@@ -91,9 +91,10 @@ public class AccountRepoTest {
 		institution.setEnd(endDate);
 		repo.addInstitution(institution);
 		repo.addAccountToInstitution(institution, account);
-		
-		FileInputStream fis = new FileInputStream("C:\\Users\\Public\\Pictures\\Sample Pictures\\Penguins.jpg");
-        MockMultipartFile image = new MockMultipartFile("image", fis);
+
+		FileInputStream fis = new FileInputStream(
+				"C:\\Users\\Public\\Pictures\\Sample Pictures\\Penguins.jpg");
+		MockMultipartFile image = new MockMultipartFile("image", fis);
 		repo.saveAccountImage(image, account);
 	}
 
@@ -176,8 +177,8 @@ public class AccountRepoTest {
 	public void testUpdateAccountFirstName() {
 		Account updatedaccount = new Account();
 		updatedaccount.setNamefirst("Mohammed");
-		Account accountnew = repo.updateAccountFirstName(account,
-				updatedaccount);
+		updatedaccount.setUsername("test");
+		Account accountnew = repo.updateAccountFirstName(updatedaccount);
 		assertNotNull(accountnew);
 		assertEquals(accountnew.getNamefirst(), "Mohammed");
 
@@ -188,8 +189,8 @@ public class AccountRepoTest {
 	public void testUpdateAccountLastName() {
 		Account updatedaccount = new Account();
 		updatedaccount.setNamelast("Mahin1");
-		Account accountnew = repo
-				.updateAccountLastName(account, updatedaccount);
+		updatedaccount.setUsername("test");
+		Account accountnew = repo.updateAccountLastName(updatedaccount);
 		assertNotNull(accountnew);
 		assertEquals(accountnew.getNamelast(), "Mahin1");
 
@@ -200,7 +201,8 @@ public class AccountRepoTest {
 	public void testUpdateAccountCity() {
 		Account updatedaccount = new Account();
 		updatedaccount.setCity("Dhaka");
-		Account accountnew = repo.updateAccountCity(account, updatedaccount);
+		updatedaccount.setUsername("test");
+		Account accountnew = repo.updateAccountCity(updatedaccount);
 		assertNotNull(accountnew);
 		assertEquals(accountnew.getCity(), "Dhaka");
 
@@ -211,8 +213,8 @@ public class AccountRepoTest {
 	public void testUpdateAccountCountry() {
 		Account updatedaccount = new Account();
 		updatedaccount.setCountry("Bangladesh");
-		updatedaccount.setAbout("I'm Mahin");
-		Account accountnew = repo.updateAccountCountry(account, updatedaccount);
+		updatedaccount.setUsername("test");
+		Account accountnew = repo.updateAccountCountry(updatedaccount);
 		assertNotNull(accountnew);
 		assertEquals(accountnew.getCountry(), "Bangladesh");
 
@@ -223,7 +225,8 @@ public class AccountRepoTest {
 	public void testUpdateAccountAbout() {
 		Account updatedaccount = new Account();
 		updatedaccount.setAbout("I'm Mahin");
-		Account accountnew = repo.updateAccountAbount(account, updatedaccount);
+		updatedaccount.setUsername("test");
+		Account accountnew = repo.updateAccountAbount(updatedaccount);
 		assertNotNull(accountnew);
 		assertEquals(accountnew.getAbout(), "I'm Mahin");
 
@@ -232,11 +235,8 @@ public class AccountRepoTest {
 	@Test
 	@Transactional
 	public void testSearchInstitutionOfAccount() {
-		Institutions institution = repo.searchInstitution(
-				this.institution.getName(), this.institution.getStart(),
-				this.institution.getEnd(), this.institution.getType(),
-				this.institution.getDescription());
-		assertNotNull(institution);
+		Institutions institutions = repo.searchInstitution(this.institution);
+		assertNotNull(institutions);
 		assertEquals(institution.getName(), "NSTU");
 	}
 
@@ -271,23 +271,20 @@ public class AccountRepoTest {
 				.deleteInstitution(institution, account);
 		assertNotNull(institutions);
 	}
-	
 
 	@Test
 	@Transactional
 	public void testDeleteAccountImage() throws Exception {
-		
-		Account accountnew = repo
-				.deleteAccountImage(account);
-		assertEquals(accountnew.getImage().toString(), null);		
+
+		Account accountnew = repo.deleteAccountImage(account);
+		assertEquals(accountnew.getImage().toString(), null);
 	}
-	
+
 	@Test
 	@Transactional
 	public void testgetAccountImage() throws Exception {
-		
-		File file = repo
-				.getAccountImage(account);
+
+		File file = repo.getAccountImage(account);
 		assertNotNull(file);
 	}
 }
