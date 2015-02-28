@@ -2,16 +2,8 @@ package web.rest.mvc;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 
-import javassist.bytecode.stackmap.BasicBlock.Catch;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.IOUtils;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,14 +20,17 @@ import web.rest.resources.AccountListResource;
 import web.rest.resources.ChangePasswordResource;
 import web.rest.resources.InstitutionsResource;
 import web.rest.resources.RoomListResource;
+import web.rest.resources.InstitutionListResource;
 import web.rest.resources.asm.AccountListResourceAsm;
 import web.rest.resources.asm.InstitutionsResourceAsm;
 import web.rest.resources.asm.RoomListResourceAsm;
+import web.rest.resources.asm.InstitutionListResourceAsm;
 import web.core.models.entities.Institutions;
 import web.core.models.entities.Room;
 import web.core.services.exceptions.AccountDoesNotExistException;
 import web.core.services.exceptions.AccountImageNotFoundException;
 import web.core.services.exceptions.AccountUpdateFailureException;
+import web.core.services.exceptions.InstitutionsEmptyException;
 import web.core.services.exceptions.RoomExistsException;
 import web.rest.resources.RoomResource;
 import web.rest.resources.asm.RoomResourceAsm;
@@ -45,6 +39,7 @@ import web.core.services.AccountService;
 import web.core.services.exceptions.AccountExistsException;
 import web.core.services.exceptions.AccountNotMatchingException;
 import web.core.services.util.AccountList;
+import web.core.services.util.InstitutionList;
 import web.core.services.util.RoomList;
 import web.rest.exceptions.ConflictException;
 import web.rest.exceptions.NotAcceptableException;
@@ -225,13 +220,10 @@ public class AccountController {
 	//Get Image of the user
 	@RequestMapping(value = "/profile/{username}/image", method = RequestMethod.GET)
 	public @ResponseBody
-	ResponseEntity<AccountResource> getAccountImage(@PathVariable("username") String username)throws IOException {
+	File getAccountImage(@PathVariable("username") String username)throws Exception {
 		try {			
 		    File file = accountService.getAccountImage(username);
-			AccountResource res = new AccountResourceAsm().toResource(account);
-			HttpHeaders headers = new HttpHeaders();
-			headers.setLocation(URI.create(res.getImage().toString()));
-			return new ResponseEntity<AccountResource>(res,headers, HttpStatus.OK);
+			return file;
 		} catch(AccountImageNotFoundException exception) {
 			throw new NotFoundException(exception);
 		}
@@ -247,7 +239,7 @@ public class AccountController {
 		    Account account = accountService.updateAccountInfo(resource.toAccount());
 			AccountResource res = new AccountResourceAsm().toResource(account);
 			return new ResponseEntity<AccountResource>(res, HttpStatus.OK);
-		} catch(AccountImageNotFoundException exception) {
+		} catch(AccountUpdateFailureException exception) {
 			throw new NotAcceptableException(exception);
 		}
 	}
@@ -257,12 +249,13 @@ public class AccountController {
 	public @ResponseBody
 	ResponseEntity<InstitutionsResource> addInstitution(@RequestBody InstitutionsResource resource,
 			@PathVariable("username") String username)throws IOException {
-		try {
 		    Institutions institution = accountService.addInstitution(resource.toInstitutions(), username);
+		    if(institution!=null){
 			InstitutionsResource res = new InstitutionsResourceAsm().toResource(institution);
 			return new ResponseEntity<InstitutionsResource>(res, HttpStatus.ACCEPTED);
-		} catch(AccountImageNotFoundException exception) {
-			throw new NotAcceptableException(exception);
+		} 
+		    else{
+				return new ResponseEntity<InstitutionsResource>(HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -314,5 +307,35 @@ public class AccountController {
 			} catch (AccountDoesNotExistException exception) {
 				throw new NotFoundException(exception);
 			}
+	}
+	
+	//Name of the institutions of user 
+	@RequestMapping(value = "/profile/{username}/getinstitutions", method = RequestMethod.GET)
+	public ResponseEntity<InstitutionListResource> getAccountsInstitutions(
+			@PathVariable String username) {
+		try {
+			InstitutionList institutionList = accountService.getInstitutions(username);
+			InstitutionListResource institutionListRes = new InstitutionListResourceAsm()
+					.toResource(institutionList);
+			return new ResponseEntity<InstitutionListResource>(institutionListRes,
+					HttpStatus.OK);
+		} catch (InstitutionsEmptyException exception) {
+			throw new NotFoundException(exception);
+		}
+	}
+	
+	//Search institutions 
+	@RequestMapping(value = "/profile/searchinstitutions/{check}", method = RequestMethod.GET)
+	public ResponseEntity<InstitutionListResource> searchAccountsInstitutions(
+			@PathVariable String check) {
+		try {
+			InstitutionList institutionList = accountService.searchInstitutions(check);
+			InstitutionListResource institutionListRes = new InstitutionListResourceAsm()
+					.toResource(institutionList);
+			return new ResponseEntity<InstitutionListResource>(institutionListRes,
+					HttpStatus.OK);
+		} catch (InstitutionsEmptyException exception) {
+			throw new NotFoundException(exception);
+		}
 	}
 }

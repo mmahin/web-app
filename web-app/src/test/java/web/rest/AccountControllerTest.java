@@ -16,9 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
@@ -27,9 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.imageio.ImageIO;
-
-import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Before;
@@ -46,6 +40,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import web.core.services.util.AccountList;
+import web.core.services.util.InstitutionList;
 import web.core.services.util.RoomList;
 import web.core.services.exceptions.AccountAndInstitotionsUpdateFailureException;
 import web.core.services.exceptions.AccountExistsException;
@@ -611,8 +606,9 @@ public class AccountControllerTest {
 		account.setAbout("test");
 	    URL url = new URL("file:///C:/Users/Public/Pictures/Sample%20Pictures/Penguins.jpg");
 	    account.setImage(url);
+		File image = new File("C:\\Users\\Public\\Pictures\\Sample Pictures\\Penguins.jpg");
         when(service.getAccountImage("test")).thenReturn(
-				account);
+        		image);
 		mockMvc.perform(
 				get("/accounts/profile/test/image"))
 				.andDo(print())
@@ -836,4 +832,91 @@ public class AccountControllerTest {
 					.andExpect(status().isNotFound()).andDo(print());
 		}
 
+		@SuppressWarnings("unchecked")
+		@Test
+		public void getAccountsInstitutions() throws Exception {
+
+			List<Institutions> list = new ArrayList<Institutions>();
+			Institutions institutionsA = new Institutions();
+			institutionsA.setId(1L);
+			institutionsA.setName("Title A");
+			institutionsA.setType("test A");
+			Date testStartdate = new Date(new DateTime(2007, 9, 23, 0, 0, 0, 0,
+					DateTimeZone.forID("UTC")).getMillis());
+			institutionsA.setStart(testStartdate);
+			Date testEnddate = new Date(new DateTime(2007, 9, 23, 0, 0, 0, 0,
+					DateTimeZone.forID("UTC")).getMillis());
+			institutionsA.setEnd(testEnddate);
+			institutionsA.setDescription("test A");
+			list.add(institutionsA);
+			Institutions institutionsB = new Institutions();
+			institutionsB.setId(2L);
+			institutionsB.setName("Title B");
+			institutionsB.setType("test B");
+			institutionsB.setStart(testStartdate);
+			institutionsB.setEnd(testEnddate);
+			institutionsB.setDescription("test B");
+			list.add(institutionsB);
+			InstitutionList insList = new InstitutionList(list);
+			when(service.getInstitutions("test")).thenReturn(insList);
+			mockMvc.perform(get("/accounts/profile/test/getinstitutions"))
+					.andExpect(
+							jsonPath(
+									"$.institutions[*].name",
+									hasItems(endsWith("Title A"),
+											endsWith("Title B"))))
+					.andExpect(status().isOk()).andDo(print());
+		}
+
+		@Test
+		public void getAccountsInstitutionsFailure() throws Exception {
+
+			when(service.getInstitutions("test")).thenReturn(null);
+			mockMvc.perform(get("/accounts/profile/test/getinstitutions")).andDo(print())
+					.andExpect(status().isNotFound());
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Test
+		public void searchAccountsInstitutions() throws Exception {
+
+			List<Institutions> list = new ArrayList<Institutions>();
+			Institutions institutionsA = new Institutions();
+			institutionsA.setId(1L);
+			institutionsA.setName("Title A");
+			institutionsA.setType("test A");
+			Date testStartdate = new Date(new DateTime(2007, 9, 23, 0, 0, 0, 0,
+					DateTimeZone.forID("UTC")).getMillis());
+			institutionsA.setStart(testStartdate);
+			Date testEnddate = new Date(new DateTime(2007, 9, 23, 0, 0, 0, 0,
+					DateTimeZone.forID("UTC")).getMillis());
+			institutionsA.setEnd(testEnddate);
+			institutionsA.setDescription("test A");
+			list.add(institutionsA);
+			Institutions institutionsB = new Institutions();
+			institutionsB.setId(2L);
+			institutionsB.setName("Title B");
+			institutionsB.setType("test B");
+			institutionsB.setStart(testStartdate);
+			institutionsB.setEnd(testEnddate);
+			institutionsB.setDescription("test B");
+			list.add(institutionsB);
+			InstitutionList insList = new InstitutionList(list);
+			when(service.searchInstitutions("test")).thenReturn(insList);
+			mockMvc.perform(get("/accounts/profile/searchinstitutions/test"))
+					.andExpect(
+							jsonPath(
+									"$.institutions[*].name",
+									hasItems(endsWith("Title A"),
+											endsWith("Title B"))))
+					.andExpect(status().isOk()).andDo(print());
+		}
+
+		@Test
+		public void searchAccountsInstitutionsFailure() throws Exception {
+
+			when(service.searchInstitutions("test")).thenReturn(null);
+			mockMvc.perform(get("/accounts/profile/getinstitutions/test")).andDo(print())
+					.andExpect(status().isNotFound());
+		}
 }

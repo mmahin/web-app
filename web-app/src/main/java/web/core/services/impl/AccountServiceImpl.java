@@ -9,7 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import web.core.services.exceptions.AccountDoesNotExistException;
 import web.core.services.exceptions.AccountExistsException;
+import web.core.services.exceptions.AccountImageNotFoundException;
 import web.core.services.exceptions.AccountNotMatchingException;
+import web.core.services.exceptions.AccountUpdateFailureException;
 import web.core.services.exceptions.RoomDoesNotExistException;
 import web.core.services.exceptions.RoomExistsException;
 import web.core.services.exceptions.InstitutionsEmptyException;
@@ -134,9 +136,13 @@ public class AccountServiceImpl implements AccountService {
 		if(account.getCountry()!=null){
 			account=accountRepo.updateAccountCountry(check);
 		}
+		if(account==null){
+			throw new AccountUpdateFailureException();
+		}
 		return account;
 	}
 
+	@SuppressWarnings("unused")
 	@Override
 	public Account updateAccountImage(MultipartFile file, String username) throws Exception {
 		Account account=accountRepo.findAccount(username);
@@ -146,16 +152,22 @@ public class AccountServiceImpl implements AccountService {
         	Account accountnew=accountRepo.saveAccountImage(file, account);
         	return accountnew;
         }
-        else{
+        else if (img==null) {
         	Account accountnew=accountRepo.saveAccountImage(file, account);
         	return accountnew; 	
         }
+        else {
+			throw new AccountUpdateFailureException();
+		}
 	}
 
 	@Override
 	public File getAccountImage(String username) throws Exception {
 		Account account=accountRepo.findAccount(username);
 		File img=accountRepo.getAccountImage(account);
+		if(img==null){
+			throw new AccountImageNotFoundException();
+		}
 		return img;
 	}
 

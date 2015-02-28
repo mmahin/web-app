@@ -1,8 +1,5 @@
 package web.rest.mvc;
 
-import java.util.Collection;
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -53,7 +50,7 @@ public class RoomController {
 	public ResponseEntity<RoomResource> deleteRoom(
 			@PathVariable("roomname") String roomname) {
 		try {
-			String msg = roomService.deleteRoom(roomname);
+			 roomService.deleteRoom(roomname);
 				
 			return new ResponseEntity<RoomResource>(HttpStatus.OK);
 		
